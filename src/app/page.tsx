@@ -36,15 +36,15 @@ export default function Home() {
   const [recommend, setRecommend] = useState(
     searchParams.get("recommend") ?? ""
   );
-  const [videos, setVideos] = useState([]);
-  const [page, setPage] = useState(searchParams.get("page") ?? 1);
-  const [count, setCount] = useState(searchParams.get("count") ?? 3);
+  const [videos, setVideos] = useState<MediaItem[]>([]);
+  const [page, setPage] = useState(Number(searchParams.get("page")) ?? 1);
+  const [count, setCount] = useState(Number(searchParams.get("count")) ?? 3);
   const [order, setOrder] = useState(searchParams.get("order") ?? "latest");
   const [quality, setQuality] = useState(searchParams.get("quality") ?? "sd");
   const [searchGif, setSearchGif] = useState(
     searchParams.get("gif") === "true" ? true : false
   );
-  const [loadingVideos, setLoadingVideos] = useState([]); // Store new videos temporarily
+  const [loadingVideos, setLoadingVideos] = useState<MediaItem[] | []>([]); // Store new videos temporarily
   const [isLoading, setIsLoading] = useState(false); // Loading state
   const [creator, setCreator] = useState({ image: "", name: "" });
   const [tag, setTag] = useState("");
@@ -52,6 +52,44 @@ export default function Home() {
   const [pages, setPages] = useState(1);
   const pathname = usePathname();
   const router = useRouter();
+
+  interface MediaUrls {
+    html: string;
+    hd: string;
+    thumbnail: string;
+    poster: string;
+    sd: string;
+    silent: string;
+  }
+
+  interface MediaItem {
+    avgColor: string;
+    createDate: number;
+    cta?: null | string;
+    description: string;
+    duration: number;
+    gallery: null;
+    hasAudio: boolean;
+    height: number;
+    hideHome: boolean;
+    hideTrending: boolean;
+    hls: boolean;
+    id: string;
+    likes: number;
+    niches: string[];
+    published: boolean;
+    type: number;
+    sexuality: string[];
+    tags: string[];
+    urls: MediaUrls;
+    userName: string;
+    verified: boolean;
+    views: number;
+    width: number;
+    profileImageUrl: string;
+  }
+
+
   async function fetchGifs() {
     setIsLoading(true);
     setLastPage(false);
@@ -62,8 +100,8 @@ export default function Home() {
     if (data.page === data.pages) {
       setLastPage(true);
     }
-    console.log(data);
-    const mergedGifs = data.gifs.map((gif, index) => ({
+    console.log(data.gifs);
+    const mergedGifs = data.gifs.map((gif: MediaUrls, index: number) => ({
       ...gif,
       profileImageUrl: data.users[index]?.profileImageUrl,
     }));
@@ -193,7 +231,7 @@ export default function Home() {
   }, [loadingVideos, quality]);
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       console.log(e);
       if (e.key === "ArrowRight") {
         if (!lastPage) {
@@ -251,7 +289,7 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = (e: SubmitEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setPage(1);
     setLastPage(false);
@@ -265,7 +303,7 @@ export default function Home() {
     }
   };
 
-  function buildQueryParams(params: Record<string, any>) {
+  function buildQueryParams(params: Record<string, string>) {
     const query = new URLSearchParams();
 
     for (const key in params) {
@@ -326,7 +364,7 @@ export default function Home() {
                   loop
                   preload="auto"
                   // poster={gif.urls.thumbnail}
-                  src={gif.urls?.silent || gif.url?.sd}
+                  src={gif.urls?.silent || gif.urls?.sd}
                 />
 
                 <Link
@@ -400,8 +438,8 @@ export default function Home() {
                   query: searchQuery,
                   creator: searchCreator,
                   recommend: recommend,
-                  page: Number(page) + 1,
-                  count: count,
+                  page: String(page + 1),
+                  count: String(count),
                   order: order,
                   quality: quality,
                   gif: searchGif ? "true" : "false",
@@ -444,7 +482,7 @@ export default function Home() {
           />
           <Checkbox
             defaultChecked={searchGif}
-            onCheckedChange={(e) => setSearchGif(e)}
+            onCheckedChange={(e) => setSearchGif(e === true)}
           />
           <Select defaultValue={order} onValueChange={updateOrder}>
             <SelectTrigger className="w-full">
