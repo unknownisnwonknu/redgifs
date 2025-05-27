@@ -1,11 +1,6 @@
 import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
-  if (!process.env.REDGIFS_API_KEY) {
-    return new Response(JSON.stringify({ error: "Missing API Key" }), {
-      status: 500,
-    });
-  }
   try {
     const { searchParams } = new URL(request.url);
     const cookieStore = await cookies();
