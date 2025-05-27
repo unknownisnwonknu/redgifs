@@ -105,7 +105,9 @@ export default function Home() {
               loop
               preload="metadata"
               // poster={gif.urls.thumbnail}
-              src={gif.urls?.silent || gif.urls?.sd}
+              src={`/api/redgifs/video?url=${encodeURIComponent(
+                gif.urls.silent || gif.urls.sd
+              )}`}
             />
           </div>
         ))}
