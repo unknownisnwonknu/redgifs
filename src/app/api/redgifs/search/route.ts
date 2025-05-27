@@ -15,7 +15,6 @@ export async function GET(request: Request) {
     const page = searchParams.get("page") || "1";
     const count = searchParams.get("count") || "3";
     const order = searchParams.get("order") || "latest";
-    const gif = searchParams.get("gif") === "true";
 
     if (!cookieToken) {
       const tokenResponse = await fetch(
@@ -35,10 +34,8 @@ export async function GET(request: Request) {
     } else {
       bearerToken = cookieStore.get("token")?.value;
     }
-    const url = gif
-      ? `https://api.redgifs.com/v2/gifs/search?search_text=${query}&page=${page}&count=${count}&order=${order}&type=g`
-      : `https://api.redgifs.com/v2/search/gifs?query=${query}&page=${page}&count=${count}&order=${order}`;
-    console.log(url);
+    console.log(bearerToken);
+    const url = `https://api.redgifs.com/v2/search/gifs?query=${query}&page=${page}&count=${count}&order=${order}`;
 
     const response = await fetch(url, {
       method: "GET",
